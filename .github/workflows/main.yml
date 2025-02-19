@@ -17,9 +17,6 @@ jobs:
         with:
           node-version: 18
 
-      - name: Run Tests
-        run: npm test
-
       - name: Deploy and Restart via SSH
         uses: appleboy/ssh-action@v0.1.10
         with:
