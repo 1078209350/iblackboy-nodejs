@@ -6,7 +6,7 @@ import {ok, fail} from '../config/result.js';
 import camelcaseKeys from 'camelcase-keys'; // 对象键名转换为驼峰命名
 
 
-// 获取所有用户
+// 获取所有产品
 router.get('/queryList', async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT * FROM product');
@@ -16,53 +16,45 @@ router.get('/queryList', async (req, res) => {
   }
 });
 
-// 登录
-
-// 密钥，实际开发中请保存在环境变量中
-const SECRET_KEY = 'secret_key';
-
-router.post('/login', async (req, res) => {
-  const { name, password } = req.body;
-  console.log(name);
-  console.log(password);
+// 新增产品
+router.post('/addProduct', async (req, res) => {
+  console.log(req.body)
   try {
-    const [result] = await pool.query(
-        ' select * from `user` where name = ? and password = ?',
-        [name, password]
-    );
-    console.log('登录结果为', result)
-    if (result.length === 0) {
-      res.status(200).json({ ...fail(), message: '用户名或密码错误' });
-    } else {
-      const token = jwt.sign({ id: result[0].id, name: result[0].name }, SECRET_KEY, { expiresIn: '1h' });
-      res.status(200).json({ ...ok(), data: { token, name, password } });
-    }
+    // 从请求体中获取数据
+    const { productName, productPrice, productType, productNumber } = req.body;
+    const [result] = await pool.query('insert into product (product_name, product_price, product_type, product_number) values (?, ?, ? ,?)',
+        [productName, productPrice, productType, productNumber]);
+    res.status(200).json({ ...ok(), message: '添加成功～' });
   } catch (err) {
-    res.status(200).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 });
 
-// 通过token获取用户信息
-router.get('/info', async (req, res) => {
-  const token = req.headers['x-token'];
+// 编辑产品
+router.post('/changeProduct', async (req, res) => {
   try {
-    const decoded = jwt.verify(token, SECRET_KEY);
-    console.log("token解析后的结果", decoded)
-    const [result] = await pool.query('SELECT * FROM user WHERE id = ?', [decoded.id]);
-    if (result.length === 0) {
-      res.status(200).json({ ...fail(), message: '用户不存在' });
-    } else {
-      res.status(200).json({ ...ok(), data: { ...result[0] } });
-    }
+    // 从请求体中获取数据
+    const { productName, productPrice, productType, productNumber, productId } = req.body;
+    const [result] = await pool.query('update product set product_name = ?, product_price = ?, product_type = ?,product_number = ? where product_id = ?',
+        [productName, productPrice, productType, productNumber, productId]);
+    res.status(200).json({ ...ok(), message: '修改成功～' });
   } catch (err) {
-    console.log(err)
-    res.status(200).json({ ...fail(), message: '无效的token' });
+    res.status(500).json({ error: err.message });
   }
-})
+});
 
-// 退出登录
-router.post('/logout', async (req, res) => {
-  res.json({ ...ok(), data: { msg: '退出成功' } });
-})
+// 删除产品
+router.post('/deleteProduct', async (req, res) => {
+  try {
+    // 从请求体中获取数据
+    const { productId } = req.body;
+    const [result] = await pool.query('delete from product where product_id = ?', [productId]);
+    res.status(200).json({ ...ok(), message: '删除成功～' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 
 export default router;

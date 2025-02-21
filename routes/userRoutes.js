@@ -37,8 +37,6 @@ const SECRET_KEY = 'secret_key';
 
 router.post('/login', async (req, res) => {
   const { name, password } = req.body;
-  console.log(name);
-  console.log(password);
   try {
     const [result] = await pool.query(
       ' select * from `user` where name = ? and password = ?',
