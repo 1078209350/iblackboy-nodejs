@@ -3,32 +3,18 @@ const router = express.Router();
 import jwt from 'jsonwebtoken';
 import pool from '../config/db.js';
 import {ok, fail} from '../config/result.js';
+import camelcaseKeys from 'camelcase-keys'; // 对象键名转换为驼峰命名
+
 
 // 获取所有用户
-router.get('/', async (req, res) => {
+router.get('/queryList', async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM user');
-    res.json(rows);
+    const [rows] = await pool.query('SELECT * FROM product');
+    res.status(200).json({ ...ok(), total: rows.length, data: camelcaseKeys(rows, {deep: true}) });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
-
-// 创建用户
-// router.post('/', async (req, res) => {
-//   const { name, password } = req.body;
-//   console.log(name);
-//   console.log(password);
-//   try {
-//     const [result] = await pool.query(
-//       'INSERT INTO users (name, password) VALUES (?, ?)',
-//       [name, password]
-//     );
-//     res.status(201).json({ id: result.insertId, name, password });
-//   } catch (err) {
-//     res.status(400).json({ error: err.message });
-//   }
-// });
 
 // 登录
 
@@ -41,8 +27,8 @@ router.post('/login', async (req, res) => {
   console.log(password);
   try {
     const [result] = await pool.query(
-      ' select * from `user` where name = ? and password = ?',
-      [name, password]
+        ' select * from `user` where name = ? and password = ?',
+        [name, password]
     );
     console.log('登录结果为', result)
     if (result.length === 0) {
@@ -76,7 +62,7 @@ router.get('/info', async (req, res) => {
 
 // 退出登录
 router.post('/logout', async (req, res) => {
-    res.json({ ...configResult.ok(), data: { msg: '退出成功' } });
-  })
+  res.json({ ...ok(), data: { msg: '退出成功' } });
+})
 
 export default router;

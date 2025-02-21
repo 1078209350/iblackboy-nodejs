@@ -1,4 +1,4 @@
-const ok = ()=>{
+export const ok = ()=>{
     return {
         code: 20000,
         success: true,
@@ -6,15 +6,10 @@ const ok = ()=>{
     }
 }
 
-const fail = ()=>{
+export const fail = ()=> {
     return {
         code: 20001,
         success: false,
         message: "失败！"
     }
-}
-
-module.exports = {
-    ok,
-    fail
 }
