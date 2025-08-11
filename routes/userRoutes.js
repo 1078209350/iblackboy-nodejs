@@ -1,25 +1,25 @@
 import express from 'express';
 const router = express.Router();
 import jwt from 'jsonwebtoken';
+import svgCaptcha from 'svg-captcha';
 import pool from '../config/db.js';
 import {ok, fail} from '../config/result.js';
-import { generateMathCaptcha } from '../utils/captcha.js';
 
 // 生成验证码图片
 router.get('/captcha', async (req, res) => {
   try {
-    const { equation, answer, dataUrl } = generateMathCaptcha();
-    // 存储验证码答案（实际项目可用 Redis 替代）
-    const captchaStore = {};
-    // 生成唯一 ID 用于后续验证（这里用时间戳模拟）
-    const captchaId = Date.now().toString();
-    captchaStore[captchaId] = answer;
-    // 返回验证码图片 + ID
-    res.json({
-      captchaId,
-      equation,
-      answer,
-      image: dataUrl, // 前端可直接用 <img src="dataUrl">
+    const captcha = svgCaptcha.createMathExpr({
+      size: 4,       // 验证码长度
+      noise: 2,      // 干扰线数量
+      color: true,   // 彩色字符
+      background: '#f0f0f0' // 背景色
+    });
+
+    // 返回 SVG 图片和答案（答案需存储在服务端用于验证）
+    res.type('svg');
+    res.status(200).send({
+      svg: captcha.data,
+      answer: captcha.text // 例如 "3+5" 的答案是 "8"
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
