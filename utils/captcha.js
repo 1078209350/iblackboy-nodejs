@@ -1,10 +1,10 @@
-const { createCanvas } = require("canvas");
+import { createCanvas } from 'canvas';
 
 /**
  * 生成加减法验证码图片
  * @returns {Object} { equation: "3+5=?", answer: 8, dataUrl: "base64..." }
  */
-function generateMathCaptcha() {
+export function generateMathCaptcha() {
   // 1. 随机生成加减法题目
   const num1 = Math.floor(Math.random() * 10) + 1; // 1-10
   const num2 = Math.floor(Math.random() * 10) + 1; // 1-10
@@ -47,4 +47,3 @@ function generateMathCaptcha() {
   };
 }
 
-module.exports = { generateMathCaptcha };
