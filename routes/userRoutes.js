@@ -3,6 +3,28 @@ const router = express.Router();
 import jwt from 'jsonwebtoken';
 import pool from '../config/db.js';
 import {ok, fail} from '../config/result.js';
+import { generateMathCaptcha } from '../utils/captcha.js';
+
+// 生成验证码图片
+router.get('/captcha', async (req, res) => {
+  try {
+    const { equation, answer, dataUrl } = generateMathCaptcha();
+    // 存储验证码答案（实际项目可用 Redis 替代）
+    const captchaStore = {};
+    // 生成唯一 ID 用于后续验证（这里用时间戳模拟）
+    const captchaId = Date.now().toString();
+    captchaStore[captchaId] = answer;
+    // 返回验证码图片 + ID
+    res.json({
+      captchaId,
+      equation,
+      answer,
+      image: dataUrl, // 前端可直接用 <img src="dataUrl">
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // 获取所有用户
 router.get('/', async (req, res) => {
