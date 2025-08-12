@@ -8,6 +8,7 @@ import {ok, fail} from '../config/result.js';
 // 生成验证码图片
 router.get('/captcha', async (req, res) => {
   try {
+    console.log('获取验证码')
     const captcha = svgCaptcha.createMathExpr({
       size: 4,       // 验证码长度
       noise: 2,      // 干扰线数量
@@ -16,10 +17,16 @@ router.get('/captcha', async (req, res) => {
     });
 
     // 返回 SVG 图片和答案（答案需存储在服务端用于验证）
-    res.type('svg');
-    res.status(200).send({
-      svg: captcha.data,
-      answer: captcha.text // 例如 "3+5" 的答案是 "8"
+    // res.type('svg');
+    const svg = captcha.data
+    const base64 = btoa(unescape(encodeURIComponent(svg))); // 编码为 Base64
+    const dataUrl = `data:image/svg+xml;base64,${base64}`;
+    res.status(200).json({
+      ...ok(),
+      data: {
+        imageBase64: dataUrl,
+        answer: captcha.text // 例如 "3+5" 的答案是 "8"
+      },
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
