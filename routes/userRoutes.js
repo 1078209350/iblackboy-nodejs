@@ -65,18 +65,19 @@ router.get('/', async (req, res) => {
 const SECRET_KEY = 'secret_key';
 
 router.post('/login', async (req, res) => {
-  const { name, password } = req.body;
+  const { account, password } = req.body;
+  console.log('body的值', req.body);
   try {
     const [result] = await pool.query(
-      ' select * from `user` where name = ? and password = ?',
-      [name, password]
+      'select * from `user` where account = ? and password = ?',
+      [account, password]
     );
     console.log('登录结果为', result)
     if (result.length === 0) {
       res.status(200).json({ ...fail(), message: '用户名或密码错误' });
     } else {
-      const token = jwt.sign({ id: result[0].id, name: result[0].name }, SECRET_KEY, { expiresIn: '1h' });
-      res.status(200).json({ ...ok(), data: { token, name, password } });
+      const token = jwt.sign({ id: result[0].id, account: result[0].account }, SECRET_KEY, { expiresIn: '1h' });
+      res.status(200).json({ ...ok(), data: { token, account, password } });
     }
   } catch (err) {
     res.status(200).json({ error: err.message });
