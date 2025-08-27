@@ -4,10 +4,11 @@ import jwt from 'jsonwebtoken';
 import svgCaptcha from 'svg-captcha';
 import pool from '../config/db.js';
 import {ok} from '../config/result.js';
+import {exampleQuestion} from '../config/constant.js';
 import camelcaseKeys from 'camelcase-keys'; // 对象键名转换为驼峰命名
 
 
-// 获取所有用户
+// 获取模型信息
 router.get('/modelList', async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT * FROM model_ai');
@@ -42,5 +43,15 @@ router.get('/modelList', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// 获取事例问题
+router.get('/getModelSampleProblem', async (req, res) => {
+  try {
+    res.status(200).json({ ...ok(), data: { ...exampleQuestion() } });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 export default router;
